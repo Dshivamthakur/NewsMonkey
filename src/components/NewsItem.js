@@ -4,8 +4,8 @@ const NewsItem = (props) => {
         let { title, description, imageUrl, newsUrl, author, date, source } = props;
 
         return (
-            <div className='my-3'>
-                <div className="card">
+            <div className='my-3 d-flex align-items-stretch' >
+                <div className="card" >
                     <div style={{ position: 'absolute', right: '0', display:'flex' }}>
                         <span className="badge rounded-pill bg-danger">
                             {source}

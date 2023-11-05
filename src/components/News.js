@@ -59,14 +59,16 @@ const News = (props) => {
           hasMore={articles.length !== totalResults}
           loader={<Spinner />}
         >
-            <div className="container">
+            <div className="container" >
               <div className="row">
                 {articles.map((element, index) => {
-                  return <div className="col-md-4" key={index}>
+                  return <div className="col-md-4 d-flex align-items-stretch" key={index}>
 
-                    <NewsItem title={element.title !== null ?  element.title : ''}
+                    <NewsItem title={element.title !== null ? (element.title.length > 45 ? element.title.slice(0, 45).trim() + '...' : element.title) : ''}
 
-                      description={element.description !== null ?  element.title : ''}
+                      // description={element.description !== null ?  element.title : ''}
+
+                      description={element.description !== null ? (element.description.length > 88 ? element.description.slice(0, 88).trim() + '...' : element.title) : ''}
 
                       imageUrl={element.urlToImage === null ? DefaultImageURL : element.urlToImage} newsUrl={element.url}
 
