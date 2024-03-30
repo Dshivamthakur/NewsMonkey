@@ -1,18 +1,19 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useContext} from 'react'
 import NewsItem from './NewsItem'
 import Spinner from './Spinner';
 import PropTypes from 'prop-types';
 import InfiniteScroll from "react-infinite-scroll-component";
+import MyContext from './context';
 
 
 const News = (props) => {
-
+  const searchQuery = useContext(MyContext);
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [totalResults, setTotalResults] = useState(0)
   // document.title = `${capitalizeFirstLetter(props.category)} - NewsMonkey`;
-
+  
  const DefaultImageURL = 'https://www.nicepng.com/png/detail/933-9332131_profile-picture-default-png.png';
 
   const capitalizeFirstLetter = (string) => {
@@ -21,7 +22,9 @@ const News = (props) => {
 
   const updateNews = async () => {
     props.setProgress(10);
-    let url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apiKey}&page=${page}&pageSize=${props.pageSize}`;
+    let RegularUrl = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apiKey}&page=${page}&pageSize=${props.pageSize}`;
+    let SearchUrl = `https://newsapi.org/v2/everything?q=${searchQuery}&sortBy=publishedAt&apiKey=${props.apiKey}&page=${page}&pageSize=${props.pageSize}`;
+    let url = (props.category === 'searchPage' ? SearchUrl : RegularUrl);
     setLoading(true);
     let data = await fetch(url);
     props.setProgress(30);
@@ -40,23 +43,28 @@ const News = (props) => {
   
 
   const fetchMoreData = async () => {
-    let url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apiKey}&page=${page + 1}&pageSize=${props.pageSize}`;
+    let RegularUrl = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apiKey}&page=${page + 1}&pageSize=${props.pageSize}`
+    let SearchUrl = `https://newsapi.org/v2/everything?q=${searchQuery}&sortBy=publishedAt&apiKey=${props.apiKey}&page=${page + 1}&pageSize=${props.pageSize}`;
+    let url = (props.category === 'searchPage' ? SearchUrl : RegularUrl);
     setPage(page+1);
     let data = await fetch(url);
     let parsedData = await data.json();
     setArticles(articles.concat(parsedData.articles));
-    setTotalResults(parsedData.totalResults);
+    setTotalResults(parsedData.totalResults)
   };
 
     return (
       <>
-        <h1 className='text-center' style={{marginTop: '60px'}}>NewsMonkey - Top {capitalizeFirstLetter(props.category)} Headlines</h1>
+      {/* {console.log(articles, totalResults, props.category)} */}
+        {<h1 className='text-center' style={{marginTop: '60px'}}> 
+        {(props.category === 'searchPage'? 'Search results': `NewsMonkey - Top ${capitalizeFirstLetter(props.category)} Headlines`)}
+        </h1>}
         {loading && <Spinner/>}
         <InfiniteScroll
           style={{overflow:'hidden'}}
           dataLength={articles.length}
           next={fetchMoreData}
-          hasMore={articles.length !== totalResults}
+          hasMore={(props.category === 'searchPage'? (page <= 3 && articles.length !== totalResults) : articles.length !== totalResults)}
           loader={<Spinner />}
         >
             <div className="container" >
@@ -100,3 +108,4 @@ News.propTypes = {
 }
 
 export default News
+

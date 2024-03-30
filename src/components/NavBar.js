@@ -1,7 +1,35 @@
-import React, { Component } from 'react'
+import React, { useEffect, useState, useRef} from 'react'
 import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
-const NavBar = () => {
+const NavBar = (props) => {
+    const [searchValue, setsearchValue] = useState('')
+    const navigate = useNavigate();
+    const isFirstRender = useRef(0);
+
+    useEffect(() => {
+        let timeout = setTimeout(() => {
+            if (searchValue !== '') {
+                props.setQuery(searchValue);
+                props.setForceUpdateKey((prevKey) => prevKey + 1);
+                navigate('/searchPage');
+                console.log('Debounce', searchValue);
+            }
+        }, 1000);
+
+        if (isFirstRender.current >= 2 && searchValue === ''){
+            console.log('navigate hhhhhhhhhh');
+            navigate('/');
+        }
+        isFirstRender.current += 1;
+        console.log(isFirstRender , isFirstRender.current > 1 , searchValue, searchValue === '');
+
+        return () => {
+            clearTimeout(timeout);
+        }
+    }, [searchValue])
+
+
     return (
         <div>
             <nav className="navbar fixed-top navbar-expand-lg bg-body-tertiary">
@@ -37,6 +65,9 @@ const NavBar = () => {
                                 <Link className="nav-link" to="/technology">Technology</Link>
                             </li>
                         </ul>
+                        <form className="d-flex" role="search" >
+                            <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" value={searchValue} onChange={(e) => setsearchValue(e.target.value)} />
+                        </form>
                     </div>
                 </div>
             </nav>
